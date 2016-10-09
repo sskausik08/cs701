@@ -1,0 +1,69 @@
+\documentclass[]{article}
+
+\usepackage{hyperref}
+
+%opening
+\title{Automatic extraction of network signatures from malware code}
+\author{Arjun Gurumurthy, Kausik Subramanian}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Hello
+\end{abstract}
+
+\section{Motivation}
+Malware, short for malicious software, 
+is one of the primary threats to modern-day networks, especially
+with the mass proliferation of the Internet. These are used to 
+disrupt computer operations, extract sensitive information, and 
+gain access to private systems.  Infected hosts can participate 
+in distributed denial-of-service attacks (DDoS), these class of 
+attacks are very hard to detect and mitigate, leading to immense
+loss of revenues. A new shift is towards creating malware for 
+profit called botnets, in which a customer can buy a network of
+infected hosts for a price. In such a setting, the malware is
+specifically designed to evade detection, thus motivating the need
+for better detection tools for malware. 
+
+The most prevalent form of malware detection is endhost-based detection
+(commonly known as anti-virus software). Detected malware's code is hashed
+and the code signatures are uploaded to a central repository. By maintaining
+an up-to-date repository of malware signatures, the endhost software can
+detect malware by comparing program signatures with the repository. However, 
+endhost-based malware detection can fail due to various reasons~\cite{networksig}:
+\begin{itemize}
+	\item \textbf{Anti-virus software is not operational or up to date.} 
+	Due to this, the endhost machine can be infected by malware without any
+	noticeable effects, thus the user will be oblivious of the infection.
+	\item \textbf{Packer programs.} To render programs stealthy, malware authors
+	employ packer programs~\cite{packer}. Packers change the program content so that
+	its signature differs but its functionality has not changed, thus avoiding
+	detection by endhost signature-based software.
+\end{itemize}
+
+Instead, a intrusion-detection mechanism integrated 
+directly into the service provider’s network offers a
+much-needed additional layer of protection. While the malware
+code is different, the protocol of the malware used to talk to its
+control server (which issues orders to the malware) will not vary. 
+Thus, by generating accurate \emph{network signature} of the malware (which
+can informally defined as the set of messages sent and received by the malware to
+initiate an action), we can use the intrusion detection system in the
+network (for e.g., Bro~\cite{bro}) to search for these particular signatures,
+and can be used to infer the presence of the malware in the network. However,
+manually inspecting malware code is an intractable approach (signatures may 
+need to be extracted in real-time). Thus, we propose \emph{automatic extraction 
+of accurate network signatures from malware code using different static
+analysis techniques.} 
+
+\section{Challenges}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{references}
+
+\end{document}
