@@ -11,7 +11,7 @@
 \maketitle
 
 \begin{abstract}
-Hello
+
 \end{abstract}
 
 \section{Motivation}
@@ -60,8 +60,15 @@ of accurate network signatures from malware code using different static
 analysis techniques.} 
 
 \section{Challenges}
-
-
+We abstract the problem to the following: given a program point,
+can we automatically provide an ordered set of symbolic packets 
+that must be received (and sent) by the client such that the program 
+reaches the program point. The symbolic packets can be used as
+network signatures and used to detect malware (a set of packets
+satisfying the symbolic packets in order will infer that there 
+is a malware with high confidence). By constructing symbolic packet
+signatures, we can generalise the intrusion policy and reduce 
+true negatives. 
 
 \bibliographystyle{abbrv}
 \bibliography{references}
