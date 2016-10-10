@@ -3,7 +3,7 @@
 \usepackage{hyperref}
 
 %opening
-\title{Automatic extraction of network signatures from malware code}
+\title{Automatic extraction of symbolic network signatures from malware code}
 \author{Arjun Gurumurthy, Kausik Subramanian}
 
 \begin{document}
@@ -11,7 +11,7 @@
 \maketitle
 
 \begin{abstract}
-
+We propose the automatic extraction of symbolic network signatures from malware code to aid and automate network-based malware detection systems.
 \end{abstract}
 
 \section{Motivation}
@@ -68,8 +68,40 @@ network signatures and used to detect malware (a set of packets
 satisfying the symbolic packets in order will infer that there 
 is a malware with high confidence). By constructing symbolic packet
 signatures, we can generalise the intrusion policy and reduce 
-true negatives. 
+true negatives (thus not affecting legitimate traffic).
 
+Malware code can be thought of as a program reacting based on input received
+packets received (possibly multi-threaded), which
+could require changes to existing reachability analyses tools 
+like Codesurfer~\cite{codesurfer}. To extract symbolic network
+signatures, we need to define the abstract semantics of the program
+suited for network signatures, and define the \emph{combine} and 
+\emph{extend} operators used for interprocedural analysis.
+
+\section{Project Proposal}
+\textbf{Tasks}:
+\begin{itemize}
+	\item Identify and characterize features of common malware code - 1-2 weeks
+	\item Develop the abstract semantics and operators for extracting  
+	symbolic network signatures from malware code - 2-3 weeks
+	\item Modifying/Extending existing tools like Codesurfer for symbolic 
+	network signature extraction - 2-3 weeks
+\end{itemize}
+
+\noindent\textbf{Open source tools}: Static analysis tools, malware repositories
+
+\noindent\textbf{Evaluation}: 
+The primary metrics of evaluation are time taken for analysis, accuracy and 
+generality of the symbolic signatures. Performance analysis can be performed 
+with different malware programs with varying lines of code to understand
+the time complexity of the analysis. The quality of the symbolic network
+signatures is a tougher metric to measure. Ideally, the symbolic network 
+signature must only include packets which will make the program reach the
+specified point. If the signature is more general, legitimate packets may 
+be considered as malicious and blocked. On the other hand, the signature
+may miss actual malware traffic because the signature does not encompass
+all inputs leading to the point. We would try to address these trade-offs in
+our evaluation.
 \bibliographystyle{abbrv}
 \bibliography{references}
 
