@@ -1,6 +1,23 @@
 \documentclass[]{article}
-
+\usepackage[xcolor]{changebar} 
 \usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{listings}
+\newcommand{\deleted}[1]{%
+	\cbcolor{red}
+	\begin{changebar}
+		#1
+	\end{changebar}%
+}%
+
+\newcommand{\added}[1]{%
+	\cbcolor{green}
+	\begin{changebar}
+		#1
+	\end{changebar}%
+}%
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,arrows}
 
 %opening
 \title{Automatic extraction of symbolic network signatures from malware code}
@@ -82,8 +99,11 @@ suited for network signatures, and define the \emph{combine} and
 \textbf{Tasks}:
 \begin{itemize}
 	\item Identify and characterize features of common malware code - 1-2 weeks
-	\item Develop the abstract semantics and operators for extracting  
-	symbolic network signatures from malware code - 2-3 weeks
+	\added{Refer to ---}
+	\item \deleted{Develop the abstract semantics and operators for extracting  
+	symbolic network signatures from malware code - 2-3 weeks} \\
+	\added{Automatically generate a symbolic automaton of the given program
+		based on packet and variable state - 2-3 weeks}
 	\item Modifying/Extending existing tools like Codesurfer for symbolic 
 	network signature extraction - 2-3 weeks
 \end{itemize}
@@ -102,6 +122,85 @@ be considered as malicious and blocked. On the other hand, the signature
 may miss actual malware traffic because the signature does not encompass
 all inputs leading to the point. We would try to address these trade-offs in
 our evaluation.
+
+\appendix
+\section{Malware program model}
+The malware program listens to incoming packets, and the
+network signature is the set of incoming packets which triggers
+an attack by the program. We propose a reasonable abstraction
+of the code of malware programs. 
+
+We model a malware program as a infinite reactive system 
+of the form:
+\begin{lstlisting}	
+while(True) {
+	packet = socket.receive();
+	...
+}
+\end{lstlisting}
+Each iteration of the loop, the program receives a
+packet, and based on current state and packet received,
+it performs certain actions. Using static analysis
+techniques, we can identify two set of variables, \emph{state}
+and \emph{packet} variables. State variables represent the 
+program state in terms of the protocol, which packet variables
+are used to represent the current packet being processed by
+the program.
+\begin{lstlisting}	
+while(True) {
+	packet = socket.receive();
+	...
+	if (a == 1 and packet[8] = "b") {
+		a = a + 1;
+	}
+	...
+}
+\end{lstlisting}	
+In the above code snippet, $a$ is a state variable
+and $packet$ is a packet variable. This also
+illustrates the packet processing 
+function of the program, which based on the current
+input packet and state variables, either transitions
+to a new program state or performs an action (attack or
+send packets). 
+\begin{lstlisting}	
+a = 0;
+while(True) {
+packet = socket.receive();
+	if (a == 0 and packet[0] = "a") {
+		a = a + 1;
+	}
+	if (a == 1 and packet[0] = "b") {
+		a = a + 1;
+	}
+	if (a == 2 and packet[0] = "c") {
+		attack()  [the attack point is provided as input to analysis]
+	}	
+}
+\end{lstlisting}	
+The above code snippet represents the complete model
+of the malware program, where based on input packets and
+current state, the program transitions to a new state. 
+The symbolic automaton for this program is 
+shown in \Cref{fig:progautomaton}. Network signatures
+for the malware are all paths from start state ($a=0$)
+to state of attack. In this case, the sequence of packets
+in order to initiate an attack is $a* \rightarrow b* \rightarrow c*$.
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[shorten >=0.5pt,node distance=3cm,on grid,auto] 
+	\node[state, initial] (v0)   {$a = 0$}; 
+	\node[state] (v1) [right=of v0] {$a = 1$}; 
+	\node[state] (v2) [right=of v1] {$a = 2$};
+	\node[state] (v3) [right=of v2] {$attack$}; 	
+	\path[->] 
+	(v0) edge node {$a*$} (v1)
+	(v1) edge node {$b*$} (v2)
+	(v2) edge node {$c*$} (v3);
+	\end{tikzpicture}
+	\caption{Symbolic automaton for malware program.}
+	\label{fig:progautomaton}
+\end{figure}
 \bibliographystyle{abbrv}
 \bibliography{references}
 
