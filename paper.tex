@@ -99,7 +99,7 @@ suited for network signatures, and define the \emph{combine} and
 \textbf{Tasks}:
 \begin{itemize}
 	\item Identify and characterize features of common malware code - 1-2 weeks
-	\added{Refer to ---}
+	\added{Refer to sections A and B}
 	\item \deleted{Develop the abstract semantics and operators for extracting  
 	symbolic network signatures from malware code - 2-3 weeks} \\
 	\added{Automatically generate a symbolic automaton of the given program
@@ -174,7 +174,8 @@ packet = socket.receive();
 		a = a + 1;
 	}
 	if (a == 2 and packet[0] = "c") {
-		attack()  [the attack point is provided as input to analysis]
+		attack()  [the attack point is provided as 
+				input to analysis]
 	}	
 }
 \end{lstlisting}	
@@ -201,6 +202,18 @@ in order to initiate an attack is $a* \rightarrow b* \rightarrow c*$.
 	\caption{Symbolic automaton for malware program.}
 	\label{fig:progautomaton}
 \end{figure}
+
+\section{Related Work}
+An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf {if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis based on network traces. This generally follows a two step process: Extract the protocol grammar, that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received). 
+For example, Polyglot~\cite{polyglot} is a system that uses dynamic binary analysis to automatically extract the protocol message format, and Dispatcher~\cite{dispatcher} is a tool that makes use of techniques specified in Polyglot to extract the message format and field semantics for messages sent and received by the application.
+
+Taint propagation is used by the tool to map how the packets received manipulate the state. When the program calls the \textit{read()} function, Dispatcher uses the function's prototype to determine if any argument is tainted based on the memory locations it accesses. Via this approach, a spam botnet called MegaD is analyzed by Dispatcher.
+
+Thus, having knowledge of the network packets received would enable us to make inferences on how they could transition to an 'attack point'. Our work focuses on static analysis of the malware code, without having to execute it and/or capture network traces.
+
+In addition, work has been done on inferring state machines automatically for stateful network protocols - Prospex~\cite{prospex}. Prospex essentially performs clustering of similar network messages and tracks protocol state changes. By merging similar states, a minimal state machine is produced, and the paper produces a labeled state tree for the Agobot malware. This could be used as our initial malware program model for which we determine the sequence of packets to initiate an attack.
+
+
 \bibliographystyle{abbrv}
 \bibliography{references}
 
