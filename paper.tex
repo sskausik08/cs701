@@ -1,21 +1,9 @@
-\documentclass[]{article}
+\documentclass[twocolumn, 11pt]{paper}
 \usepackage[xcolor]{changebar} 
 \usepackage{hyperref}
 \usepackage{cleveref}
 \usepackage{listings}
-\newcommand{\deleted}[1]{%
-	\cbcolor{red}
-	\begin{changebar}
-		#1
-	\end{changebar}%
-}%
 
-\newcommand{\added}[1]{%
-	\cbcolor{green}
-	\begin{changebar}
-		#1
-	\end{changebar}%
-}%
 \usepackage{tikz}
 \usetikzlibrary{automata,positioning,arrows}
 
@@ -95,35 +83,34 @@ signatures, we need to define the abstract semantics of the program
 suited for network signatures, and define the \emph{combine} and 
 \emph{extend} operators used for interprocedural analysis.
 
-\section{Project Proposal}
-\textbf{Tasks}:
-\begin{itemize}
-	\item Identify and characterize features of common malware code - 1-2 weeks
-	\added{Refer to sections A and B}
-	\item \deleted{Develop the abstract semantics and operators for extracting  
-	symbolic network signatures from malware code - 2-3 weeks} \\
-	\added{Automatically generate a symbolic automaton of the given program
-		based on packet and variable state - 2-3 weeks}
-	\item Modifying/Extending existing tools like Codesurfer for symbolic 
-	network signature extraction - 2-3 weeks
-\end{itemize}
+%\section{Project Proposal}
+%\textbf{Tasks}:
+%\begin{itemize}
+%	\item Identify and characterize features of common malware code - 1-2 weeks
+%	\added{Refer to sections A and B}
+%	\item \deleted{Develop the abstract semantics and operators for extracting  
+%	symbolic network signatures from malware code - 2-3 weeks} \\
+%	\added{Automatically generate a symbolic automaton of the given program
+%		based on packet and variable state - 2-3 weeks}
+%	\item Modifying/Extending existing tools like Codesurfer for symbolic 
+%	network signature extraction - 2-3 weeks
+%\end{itemize}
+%
+%\noindent\textbf{Open source tools}: SMT solvers, malware repositories
+%
+%\noindent\textbf{Evaluation}: 
+%The primary metrics of evaluation are time taken for analysis, accuracy and 
+%generality of the symbolic signatures. Performance analysis can be performed 
+%with different malware programs with varying lines of code to understand
+%the time complexity of the analysis. The quality of the symbolic network
+%signatures is a tougher metric to measure. Ideally, the symbolic network 
+%signature must only include packets which will make the program reach the
+%specified point. If the signature is more general, legitimate packets may 
+%be considered as malicious and blocked. On the other hand, the signature
+%may miss actual malware traffic because the signature does not encompass
+%all inputs leading to the point. We would try to address these trade-offs in
+%our evaluation.
 
-\noindent\textbf{Open source tools}: SMT solvers, malware repositories
-
-\noindent\textbf{Evaluation}: 
-The primary metrics of evaluation are time taken for analysis, accuracy and 
-generality of the symbolic signatures. Performance analysis can be performed 
-with different malware programs with varying lines of code to understand
-the time complexity of the analysis. The quality of the symbolic network
-signatures is a tougher metric to measure. Ideally, the symbolic network 
-signature must only include packets which will make the program reach the
-specified point. If the signature is more general, legitimate packets may 
-be considered as malicious and blocked. On the other hand, the signature
-may miss actual malware traffic because the signature does not encompass
-all inputs leading to the point. We would try to address these trade-offs in
-our evaluation.
-
-\appendix
 \section{Malware program model} \label{sec:malwaremodel}
 The malware program listens to incoming packets, and the
 network signature is the set of incoming packets which triggers
@@ -182,26 +169,27 @@ packet = socket.receive();
 The above code snippet represents the complete model
 of the malware program, where based on input packets and
 current state, the program transitions to a new state. 
-The symbolic automaton for this program is 
-shown in \Cref{fig:progautomaton}. Network signatures
-for the malware are all paths from start state ($a=0$)
-to state of attack. In this case, the sequence of packets
-in order to initiate an attack is $a* \rightarrow b* \rightarrow c*$.
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[shorten >=0.5pt,node distance=3cm,on grid,auto] 
-	\node[state, initial] (v0)   {$a = 0$}; 
-	\node[state] (v1) [right=of v0] {$a = 1$}; 
-	\node[state] (v2) [right=of v1] {$a = 2$};
-	\node[state] (v3) [right=of v2] {$attack$}; 	
-	\path[->] 
-	(v0) edge node {$a*$} (v1)
-	(v1) edge node {$b*$} (v2)
-	(v2) edge node {$c*$} (v3);
-	\end{tikzpicture}
-	\caption{Symbolic automaton for malware program.}
-	\label{fig:progautomaton}
-\end{figure}
+%
+%The symbolic automaton for this program is 
+%shown in \Cref{fig:progautomaton}. Network signatures
+%for the malware are all paths from start state ($a=0$)
+%to state of attack. In this case, the sequence of packets
+%in order to initiate an attack is $a* \rightarrow b* \rightarrow c*$.
+%\begin{figure}[h]
+%	\centering
+%	\begin{tikzpicture}[shorten >=0.5pt,node distance=3cm,on grid,auto] 
+%	\node[state, initial] (v0)   {$a = 0$}; 
+%	\node[state] (v1) [right=of v0] {$a = 1$}; 
+%	\node[state] (v2) [right=of v1] {$a = 2$};
+%	\node[state] (v3) [right=of v2] {$attack$}; 	
+%	\path[->] 
+%	(v0) edge node {$a*$} (v1)
+%	(v1) edge node {$b*$} (v2)
+%	(v2) edge node {$c*$} (v3);
+%	\end{tikzpicture}
+%	\caption{Symbolic automaton for malware program.}
+%	\label{fig:progautomaton}
+%\end{figure}
 
 \section{Related Work}
 An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf{if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis. This generally follows a two step process: Extract the protocol grammar that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received).
@@ -225,7 +213,6 @@ $$ in[n] = use[n] \quad \bigcup  \quad (out[n] - def[n]) $$
 $$ out[n] = \bigcup_{S \: \epsilon \: succ[n]}  in[s] $$
 
 where $in$ and $out$ represent the live variables entering and leaving the edge in the control flow graph. $def$ and $use$ represent the variables defined and referenced in an expression represented by a node in the CFG.
-
 \section{Signature Extraction} \label{sec:extraction}
 We now describe a procedure to generate a network signature
 of length $n$ (length of the signature is the number of packets
@@ -238,12 +225,12 @@ extract signatures.
 
 \subsection{Preliminaries}
 For a malware program $M$, let $S$ denote
- the vector of boolean state variables in the program,
-  and $P$ denote the vector of boolean packet variables
-  in the program\footnote{
-  	For example, a 60 bit packet is a vector 
-  	of 60 boolean variables.}. Let the
-  initial values of the state variables be $S_{0}$.
+the vector of boolean state variables in the program,
+and $P$ denote the vector of boolean packet variables
+in the program\footnote{
+	For example, a 60 bit packet is a vector 
+	of 60 boolean variables.}. Let the
+initial values of the state variables be $S_{0}$.
 
 As described in the earlier section, the malware
 packet processing code is a set of \texttt{if} 
@@ -255,29 +242,54 @@ denotes the predicate on $S$ and $P$, and $\delta(S,P)$ denotes
 the action on $S$ if $\gamma(S,P)$ is satisfied. Therefore,
 the semantics of the \texttt{if} statement is as follows:
 \begin{equation}
-\gamma(S,P) \Rightarrow S' = \delta(S,P)
+\gamma(S,P) \Rightarrow S' == \delta(S,P)
 \end{equation}
 where $S'$ denotes the new state after the \texttt{if} 
-block is executed.
+block is executed. 
+
+Formally, given $M$, we need to find a sequence of packets $p_0$,
+$p_1, \ldots p_{n-1}$ such that $M$ starting from initial
+state reaches the attack point when it receives the packets in
+that particular order. This sequence is packets is defined as a 
+valid network signature of the malware program.
 
 \subsection{Transition Model}
 We denote the state
-vector after receiving $i$ packets as $S_i$.
-When packet $i+1$ of the signature is received, 
-mlaware $M$, based on $S_i$ and $P_{i+1}$, will execute 
-a \texttt{if} $(\gamma_j, \delta_j)$ block\footnote{
-	We assume one \texttt{if} block is executed for every packet.}.
-Therefore, we can model the malware state transition 
+vector before receiving the $i^{th}$ packet as $S_i$.
+When packet $i$ of the signature is received, 
+mlaware $M$, based on $S_i$ and $P_{i}$, will execute 
+a \texttt{if} $(\gamma_j, \delta_j)$ block.
+For a given action block comprising  
+assignment statements, the logical formula corresponding to
+the assignments is: 
+$\delta(S,P) = s_1' \Leftrightarrow \delta_1(S,P) \wedge s_2' \Leftrightarrow  \delta_2(S,P) \Leftrightarrow  \wedge ~s_{|S|}' = \delta_{|S|}(S,P)$, 
+where $\delta_i$ corresponds to the right hand side
+expression for the assignment statement $s_i = exp$.
+If the action has no assignment for a state 
+variable $s_i$, $\delta_i = s_i$ (the value must 
+remain unchanged, so we need to add this clause).
+
+We can model the malware state transition 
 by the following constraints: 
 \begin{equation}
-	\forall i. 0 \leq i \leq n-2.~\forall (\gamma, \delta) \in I. ~\gamma(S_i, P_{i+1}) \Rightarrow S_{i+1} = \delta(S_i, P_{i+1})
+\forall i. 0 \leq i \leq n-2.~\forall (\gamma, \delta) \in I. ~\gamma(S_i, P_{i}) \Rightarrow S_{i+1} \Leftrightarrow \delta(S_i, P_{i})
 \end{equation}
+
+To find minimal signatures, every packet received by the malware 
+must trigger a state change, which translated to the constraint
+that atleast one of the if predicates must be satisfied: 
+\begin{equation}
+\forall i. 0 \leq i \leq n-2. \bigvee_{(\gamma, \delta) \in I} \gamma(S_i, P_{i})
+\end{equation}
+
+
+
 Let the attack point block be $(\gamma_M, \delta_M)$. 
 Therefore, a network signature of length $n$ means
-that $P_n$ triggers the attack. The state of the program
-is $S_{n-1}$. The following constraint holds:
+that $P_{n-1}$ triggers the attack. The state of the program
+is $S_{n-1}$. The following constraint must hold:
 \begin{equation}
-	\gamma_M(S_{n-1},P_{n})
+\gamma_M(S_{n-1},P_{n-1})
 \end{equation}
 The SMT solver will return a model for packets $P_1,
 \ldots P_n$ such that the program after these receiving
@@ -292,8 +304,8 @@ example, if the $i^{th}$ packet only matches certain
 predicates in the transition, we can generalize the packet on
 these bits (the rest of the bits are don't care). To 
 generate the different singatures of length $n$, 
-we can run the SMT solver multiple times to get different 
-models satisfying the constraints.
+we can add blocking clauses for the signature we obtained 
+to find a signature different from the current one.
 
 \subsection{Example}
 Let us consider the following program receiving two-bit packets:
@@ -301,36 +313,81 @@ Let us consider the following program receiving two-bit packets:
 s1 = 0;
 s2 = 0;
 while(True) {
-	packet = socket.receive();
-	if (s1 == 0 and packet[0] == 0) {
-	s1 = 1;
-	}
-	if (s1 == 1 and s2 == 0 and packet[1] == 1) {
-	s2 = (not s2) and packet[1];
-	}
-	if (s1 == 1 and s2 == 1 and packet[0] == 1 and packet[1] == 1) {
-	attack()  
-	}	
+packet = socket.receive();
+if (s1 == 0 and packet[0] == 0) {
+s1 = 1;
+}
+if (s1 == 1 and s2 == 0 and packet[1] == 1) {
+s2 = (not s2) and packet[1];
+}
+if (s1 == 1 and s2 == 1 and packet[0] == 1 and packet[1] == 1) {
+attack()  
+}	
 }
 \end{lstlisting}	
 We denote the state variables by $s_1, s_2$ and packet 
 variables by $p_1, p_2$.
 For the first \texttt{if} block, 
-$\gamma: \neg s_1 \wedge \neg p_1$, and $\delta: s_1'$ ($s_1$ 
+$\gamma: \neg s_1 \wedge \neg p_1$, and $\delta: s_1' \wedge s_2' \Leftrightarrow s_2$ ($s_1$ 
 is set by the action). Similarily,
 for the second block: 
 $\gamma: s_1 \wedge \neg s_2 \wedge p_2$, and $\delta: 
-s_2' \Leftrightarrow \neg s_2 \wedge p_1$.
+s_1'\Leftrightarrow s_1 \wedge s_2' \Leftrightarrow \neg s_2 \wedge p_1$.
 For this program, initial state $S_0 = (0, 0)$.
 The attack point predicate $\gamma_M$ is as follows:
 \begin{equation}
-	s_1 \wedge s_2 \wedge p_1 \wedge p_1
+s_1 \wedge s_2 \wedge p_1 \wedge p_1
 \end{equation}
 Therefore, if we add the constraints as described in the 
 earlier section, for $n=3$, we would obtain a
 valid network signature. 
 
+\section{Evaluation}
+We present some preliminary evaluation of signature extraction using
+a synthetic malware example. We use the Z3~\cite{z3} SMT solver 
+for solving the constraints generated for extracting signatures. 
+We consider a malware program which processes 128 bit packets (i.e.,
+128 packet boolean variables). The malware program contains $n$ state
+variables which are initialized to false. For every packet satisfying 
+a certain condition, one of the state variables is set to true, and the 
+malware program launches an attack when all state variables are 
+set to true. Therefore, the signature length is $n$. We show the 
+time to solve constraints to extract the signature with varying 
+signature lengths in \Cref{fig:eval}.
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{plot.png}
+	\caption{Time taken to extract a signature using the Z3 solver
+		with varying signature lengths.}
+	\label{fig:eval}
+\end{figure}
 
+\section{Future Work}
+One of our simplifying assumptions is that we know the attack 
+point in the malware. However, with large codebases, this may be 
+difficult to identify manually. Therefore, an important extension is 
+Identifying attack points automatically. Some initial approaches can
+be identifying statements that make accesses to restricted files or 
+running restricted commands (e.g., sudo). To detect propagation
+in worms, 
+we can find code which causes the malware to send itself on the 
+network. 
+
+Another simplifying assumption is our malware program model 
+as a set of if blocks in a while loop. We found real malware programs with
+large codebases with mutliple files, thus packet processing can be 
+across several procedures, requiring inter-procedural analyses.
+Also, it may be difficult to find malware code in the wild, only binaries,
+so extraction of signatures for a binary would be useful.
+
+Another feature of malware code can be loops whose number 
+of iterations depend on the bits of the packet. Thus, we cannot 
+unroll the loop trivially, and require to find invariants for the loop 
+predicated on packet characteristics. 
+
+Finally, the signature extraction can be used to verify  
+implementations of receivers such that they adhere to 
+a protocol specification. 
 
 \bibliographystyle{abbrv}
 \bibliography{references}
