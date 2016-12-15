@@ -16,16 +16,14 @@
 \maketitle
 
 \begin{abstract}
-We propose the automatic extraction of symbolic network signatures from malware code to aid and automate network-based malware detection systems.
+Malware is one of the primary threats to modern-day networks. While the most prevalent form of malware detection is endhost-based (e.g., matching code hashes), a detection mechanism integrated directly into the network offers a much-needed additional layer of protection. Towards this goal, we propose automatic generation of accurate network signatures of malware  using program analysis techniques and SMT solvers. Informally, a network signature is the set of messages received by the malware to initiate attacks. These network signatures can be used by intrusion detection systems to detect malware traffic in the network. We present some preliminary work towards this goal. 
 \end{abstract}
 
 \section{Motivation}
-Malware, short for malicious software, 
-is one of the primary threats to modern-day networks, especially
-with the mass proliferation of the Internet. These are used to 
+Malware is software designed to inflict illegitimate action and affect data, hosts or networks. These are used to 
 disrupt computer operations, extract sensitive information, and 
-gain access to private systems.  Infected hosts can participate 
-in distributed denial-of-service attacks (DDoS), these class of 
+gain access to private systems. Infected hosts can participate 
+in distributed denial-of-service attacks (DDoS), and these class of 
 attacks are very hard to detect and mitigate, leading to immense
 loss of revenues. A new shift is towards creating malware for 
 profit called botnets, in which a customer can buy a network of
@@ -34,11 +32,7 @@ specifically designed to evade detection, thus motivating the need
 for better detection tools for malware. 
 
 The most prevalent form of malware detection is endhost-based detection
-(commonly known as anti-virus software). Detected malware's code is hashed
-and the code signatures are uploaded to a central repository. By maintaining
-an up-to-date repository of malware signatures, the endhost software can
-detect malware by comparing program signatures with the repository. However, 
-endhost-based malware detection can fail due to various reasons~\cite{networksig}:
+(commonly known as anti-virus software). The detected malware's code is hashed and the code signatures are uploaded to a central repository. By maintaining an up-to-date repository of malware signatures, the endhost software can detect malware by comparing program signatures with the repository. However, endhost-based malware detection can fail due to various reasons~\cite{networksig}:
 \begin{itemize}
 	\item \textbf{Anti-virus software is not operational or up to date.} 
 	Due to this, the endhost machine can be infected by malware without any
@@ -72,7 +66,7 @@ reaches the program point. The symbolic packets can be used as
 network signatures and used to detect malware (a set of packets
 satisfying the symbolic packets in order will infer that there 
 is a malware with high confidence). By constructing symbolic packet
-signatures, we can generalise the intrusion policy and reduce 
+signatures, we can generalize the intrusion policy and reduce 
 true negatives (thus not affecting legitimate traffic).
 
 Malware code can be thought of as a program reacting based on input received
@@ -130,19 +124,14 @@ packet, and based on current state and packet received,
 it performs certain actions. Using static analysis
 techniques, we can identify two set of variables, \emph{state}
 and \emph{packet} variables. State variables represent the 
-program state in terms of the protocol, which packet variables
+program state in 	terms of the protocol, which packet variables
 are used to represent the current packet being processed by
 the program.
-\begin{lstlisting}	
-while(True) {
-	packet = socket.receive();
-	...
-	if (a == 1 and packet[8] = "b") {
-		a = a + 1;
-	}
-	...
-}
-\end{lstlisting}	
+
+\begin{figure}[h]
+	\includegraphics[width=\columnwidth]{code.PNG}
+	\label{fig:code1}
+\end{figure}
 In the above code snippet, $a$ is a state variable
 and $packet$ is a packet variable. This also
 illustrates the packet processing 
@@ -150,22 +139,10 @@ function of the program, which based on the current
 input packet and state variables, either transitions
 to a new program state or performs an action (attack or
 send packets). 
-\begin{lstlisting}	
-a = 0;
-while(True) {
-packet = socket.receive();
-	if (a == 0 and packet[0] == "a") {
-		a = a + 1;
-	}
-	if (a == 1 and packet[0] == "b") {
-		a = a + 1;
-	}
-	if (a == 2 and packet[0] == "c") {
-		attack()  [the attack point is provided as 
-				input to analysis]
-	}	
-}
-\end{lstlisting}	
+\begin{figure}[h]
+	\includegraphics[width=\columnwidth]{code2.PNG}
+	\label{fig:code2}
+\end{figure}
 The above code snippet represents the complete model
 of the malware program, where based on input packets and
 current state, the program transitions to a new state. 
@@ -192,7 +169,7 @@ current state, the program transitions to a new state.
 %\end{figure}
 
 \section{Related Work}
-An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf{if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis. This generally follows a two step process: Extract the protocol grammar that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received).
+An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf{if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis. A general process followed is as follows: Extract the protocol grammar that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received).
 
 Polyglot~\cite{polyglot} is a system that automatically extracts the protocol message format using dynamic binary analysis. The intuition behind the design of the system is that the  way  that  an  implementation  of  the protocol processes the received application data  reveals a wealth of information about the protocol.
 
@@ -271,8 +248,10 @@ remain unchanged, so we need to add this clause).
 
 We can model the malware state transition 
 by the following constraints: 
+
+$\forall i. 0 \leq i \leq n-2.~\forall (\gamma, \delta) \in I.~$
 \begin{equation}
-\forall i. 0 \leq i \leq n-2.~\forall (\gamma, \delta) \in I. ~\gamma(S_i, P_{i}) \Rightarrow S_{i+1} \Leftrightarrow \delta(S_i, P_{i})
+\gamma(S_i, P_{i}) \Rightarrow S_{i+1} \Leftrightarrow \delta(S_i, P_{i})
 \end{equation}
 
 To find minimal signatures, every packet received by the malware 
@@ -303,36 +282,24 @@ transitions of $M$ to generalize the signature. For
 example, if the $i^{th}$ packet only matches certain 
 predicates in the transition, we can generalize the packet on
 these bits (the rest of the bits are don't care). To 
-generate the different singatures of length $n$, 
+generate the different signatures of length $n$, 
 we can add blocking clauses for the signature we obtained 
 to find a signature different from the current one.
-
 \subsection{Example}
-Let us consider the following program receiving two-bit packets:
-\begin{lstlisting}	
-s1 = 0;
-s2 = 0;
-while(True) {
-packet = socket.receive();
-if (s1 == 0 and packet[0] == 0) {
-s1 = 1;
-}
-if (s1 == 1 and s2 == 0 and packet[1] == 1) {
-s2 = (not s2) and packet[1];
-}
-if (s1 == 1 and s2 == 1 and packet[0] == 1 and packet[1] == 1) {
-attack()  
-}	
-}
-\end{lstlisting}	
+Let us consider a program receiving two-bit packets.
+
 We denote the state variables by $s_1, s_2$ and packet 
 variables by $p_1, p_2$.
 For the first \texttt{if} block, 
 $\gamma: \neg s_1 \wedge \neg p_1$, and $\delta: s_1' \wedge s_2' \Leftrightarrow s_2$ ($s_1$ 
-is set by the action). Similarily,
+is set by the action). Similarly,
 for the second block: 
 $\gamma: s_1 \wedge \neg s_2 \wedge p_2$, and $\delta: 
 s_1'\Leftrightarrow s_1 \wedge s_2' \Leftrightarrow \neg s_2 \wedge p_1$.
+\begin{figure}[ht]
+	\includegraphics[width=\columnwidth]{code7.PNG}
+	\label{fig:code7}
+\end{figure}
 For this program, initial state $S_0 = (0, 0)$.
 The attack point predicate $\gamma_M$ is as follows:
 \begin{equation}
@@ -375,7 +342,7 @@ network.
 
 Another simplifying assumption is our malware program model 
 as a set of if blocks in a while loop. We found real malware programs with
-large codebases with mutliple files, thus packet processing can be 
+large codebases with multiple files, thus packet processing can be 
 across several procedures, requiring inter-procedural analyses.
 Also, it may be difficult to find malware code in the wild, only binaries,
 so extraction of signatures for a binary would be useful.
