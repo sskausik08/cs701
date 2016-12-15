@@ -204,14 +204,27 @@ in order to initiate an attack is $a* \rightarrow b* \rightarrow c*$.
 \end{figure}
 
 \section{Related Work}
-An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf {if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis based on network traces. This generally follows a two step process: Extract the protocol grammar, that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received). 
-For example, Polyglot~\cite{polyglot} is a system that uses dynamic binary analysis to automatically extract the protocol message format, and Dispatcher~\cite{dispatcher} is a tool that makes use of techniques specified in Polyglot to extract the message format and field semantics for messages sent and received by the application.
+An important assumption that we make is that of the simplification of the botnet client code to a set of \textbf{if (state, packet)} statements. Looking at existing research, significant work has gone into automatic protocol reverse-engineering of botnet C\&C protocols using dynamic binary analysis. This generally follows a two step process: Extract the protocol grammar that captures the structure of messages comprising the protocol. Knowing the protocol message format would enable the construction of the protocol state machine, which represents the sequence of messages as a specification of protocol states and transition between states (based on messages received).
 
-Taint propagation is used by the tool to map how the packets received manipulate the state. When the program calls the \textit{read()} function, Dispatcher uses the function's prototype to determine if any argument is tainted based on the memory locations it accesses. Via this approach, a spam botnet called MegaD is analyzed by Dispatcher.
+Polyglot~\cite{polyglot} is a system that automatically extracts the protocol message format using dynamic binary analysis. The intuition behind the design of the system is that the  way  that  an  implementation  of  the protocol processes the received application data  reveals a wealth of information about the protocol.
 
-Thus, having knowledge of the network packets received would enable us to make inferences on how they could transition to an 'attack point'. Our work focuses on static analysis of the malware code, without having to execute it and/or capture network traces.
+Dispatcher~\cite{dispatcher} attempts to perform protocol reverse-engineering for active botnet infiltration. Essentially, it is a tool that makes use of Polyglot to extract the message format and in addition infers the field semantics for messages sent and received by the application. Thus, having knowledge of the network packets received would enable us to make inferences on how they could transition to an 'attack point'.
 
-In addition, work has been done on inferring state machines automatically for stateful network protocols - Prospex~\cite{prospex}. Prospex essentially performs clustering of similar network messages and tracks protocol state changes. By merging similar states, a minimal state machine is produced, and the paper produces a labeled state tree for the Agobot malware. This could be used as our initial malware program model for which we determine the sequence of packets to initiate an attack.
+Prospex~\cite{prospex} is a system for protocol specification extraction for stateful network protocols - essentially, it reverse engineers the protocol state machine by clustering similar network messages and tracks protocol state changes. By merging similar states, a minimal state machine is produced.
+
+All three systems use dynamic analysis techniques - mainly taint propagation. However, this would mean the code would need to execute in a sandboxed environment or be a part of a honeypot system. Static analysis techniques would be a better approach.
+
+Our work focuses on static analysis of the malware code, without having to execute it or capture network traces.
+
+\section{Live variable analysis} \label{sec:livevariableanalysis}
+We obtain network signatures using packet and state variables, the complexity increasing with respect to the number of state variables. To reduce the number of state variables, we perform live variable analysis for the program up until the attack point - that is, live variable analysis is done assuming the program terminates after the attack point.
+If the attack point is within one or more loops, then the assumed termination point would be immediately after all the loops are closed.
+For our use case, we can treat the entire code till the assumed termination point as a single block. Any variables that are not live within this block are ignored, and only the remaining live variables are used as state variables for the signature extraction step.
+Identifying live variables boils down to solving the dataflow equations:
+$$ in[n] = use[n] \quad \bigcup  \quad (out[n] - def[n]) $$
+$$ out[n] = \bigcup_{S \: \epsilon \: succ[n]}  in[s] $$
+
+where $in$ and $out$ represent the live variables entering and leaving the edge in the control flow graph. $def$ and $use$ represent the variables defined and referenced in an expression represented by a node in the CFG.
 
 \section{Signature Extraction} \label{sec:extraction}
 We now describe a procedure to generate a network signature
